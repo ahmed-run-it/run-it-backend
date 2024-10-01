@@ -24,6 +24,7 @@ jobs:
   securityCheck:
     name: Security Check
     runs-on: ubuntu-latest
+    needs: [lintTest]
     steps:
       - name: Check for Security
         run: |
