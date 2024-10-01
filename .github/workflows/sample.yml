@@ -9,15 +9,15 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Clone Respository
+      - name: Clone Repository
         uses: actions/checkout@v2
       - name: Install Dependencies
         run: |
           echo "Running Installing Dependencies..."
           npm install
-      - name: Run Lintting
-         run: | 
-           echo "Running Lintting ..."
-           npm run lint 
+      - name: Run Linting
+        run: |
+          echo "Running Linting ..."
+          npm run lint
         env:
-          CI: true   
+          CI: true
