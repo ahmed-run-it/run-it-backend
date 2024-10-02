@@ -19,5 +19,5 @@
     "noFallthroughCasesInSwitch": false,
     "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts", "node_modules/class-validator", "test/**/*"]
+  "include": ["src/**/*.ts", "node_modules/class-validator", "test/**/*", "src/config"]
 }
