@@ -13,6 +13,7 @@ export class AuthService {
     username: string,
     pass: string,
   ): Promise<{ access_token: string }> {
+    //bcrypt
     const user = await this.usersService.findOne(username);
     if (user?.password !== pass) {
       throw new UnauthorizedException();
