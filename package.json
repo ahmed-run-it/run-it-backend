@@ -19,11 +19,12 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-    "migration:create": "ts-node -P ./tsconfig.node.json node_modules/typeorm/cli.js migration:create -n",
-    "migration:generate": "ts-node -P ./tsconfig.node.json node_modules/typeorm/cli.js migration:generate -n",
-    "migration:show": "ts-node -P ./tsconfig.node.json node_modules/typeorm/cli.js migration:show",
-    "migration:run": "ts-node -P ./tsconfig.node.json scripts/run-migrations.ts",
-    "migration:revert": "ts-node -P ./tsconfig.node.json scripts/undo-last-migration.ts"
+    "typeorm": "typeorm-ts-node-commonjs -d src/datasource/datasource.cli.ts",
+    "migration:generate": "npm run typeorm migration:generate",
+    "migration:show": "npm run typeorm migration:show",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert",
+    "migration:create": "typeorm-ts-node-commonjs migration:create"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

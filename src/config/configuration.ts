@@ -1,53 +1,41 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import * as Entities from '../entities'; // Assure-toi que ce chemin est correct
-import { config } from 'dotenv';
-import { environment } from 'src/environments/environement';
-config();
+import * as dotenv from 'dotenv';
+dotenv.config();
+const configPath = process.env.SERVER_DEPLOY
+  ? '.env'
+  : `./src/envs/.env.${process.env.NODE_ENV}`;
+dotenv.config({ path: configPath });
 
-class ConfigService {
-  constructor(private readonly env: { [k: string]: string | undefined }) {}
+export const defaultConfig = {
+  env: process.env.NODE_ENV,
+  app: {
+    name: process.env.PROJECT_NAME,
+    port: process.env.PORT,
+    deployed: process.env.SERVER_DEPLOY,
+    secure: process.env.SECURE_AUTHENTICATION,
+  },
+  api: {
+    url: process.env.URL_API,
+  },
+  // databaseUrl: process.env.DATABASE_URL,
+  typeorm: {
+    type: process.env.TYPEORM_CONNECTION,
+    host: process.env.TYPEORM_HOST,
+    port: process.env.TYPEORM_PORT,
+    username: process.env.TYPEORM_USERNAME,
+    password: process.env.TYPEORM_PASSWORD,
+    database: process.env.TYPEORM_DATABASE,
+    synchronize: process.env.SYNCHRONIZE === 'true',
+    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    logging: process.env.NODE_ENV !== 'production' ? ['error'] : false,
+    migrations: [__dirname + '/../migrations/**/*.ts'],
+    migrationsTableName: process.env.TYPEORM_MIGRATIONS_TABLE_NAME,
+    migrationsRun: process.env.RUN_MIGRATIONS === 'true',
+    cli: {
+      migrationsDir: '/../migrations/**/*.ts',
+    },
+  },
+};
 
-  public getValue(key: string, throwOnMissing = true): string {
-    const value = this.env[key];
-    if (!value && throwOnMissing) {
-      throw new Error(`config error - missing env.${key}`);
-    }
-
-    return value;
-  }
-
-  public ensureValues(keys: string[]) {
-    keys.forEach((k) => this.getValue(k, true));
-    return this;
-  }
-
-  public isProduction() {
-    return environment.production;
-  }
-
-  public getTypeOrmConfig(): TypeOrmModuleOptions & { cli } {
-    return {
-      type: 'postgres',
-      host: this.getValue('TYPEORM_HOST'),
-      port: Number(this.getValue('TYPEORM_PORT')),
-      username: this.getValue('TYPEORM_USERNAME'),
-      password: this.getValue('TYPEORM_PASSWORD'),
-      database: this.getValue('TYPEORM_DATABASE'),
-      entities: Object.values(Entities),
-      migrations: ['dist/migrations/**/*{.ts,.js}'],
-      cli: { migrationsDir: 'src/migrations' },
-      synchronize: false,
-      keepConnectionAlive: true,
-    };
-  }
-}
-
-const configService = new ConfigService(process.env).ensureValues([
-  'TYPEORM_HOST',
-  'TYPEORM_PORT',
-  'TYPEORM_USERNAME',
-  'TYPEORM_PASSWORD',
-  'TYPEORM_DATABASE',
-]);
-
-export { configService };
+export const config = () => {
+  return defaultConfig;
+};

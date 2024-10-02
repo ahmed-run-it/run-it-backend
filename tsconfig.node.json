@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "allowSyntheticDefaultImports": true
-  },
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+    "module": "commonjs",
+    "experimentalDecorators": true
+  }
 }
