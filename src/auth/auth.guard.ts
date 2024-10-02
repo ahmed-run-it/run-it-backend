@@ -7,6 +7,7 @@ import {
 import { IS_PUBLIC_KEY, jwtConstants } from './constants';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -21,30 +22,29 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
     if (isPublic) {
-      // 💡 See this condition
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token not found');
     }
+
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
-      request['user'] = payload;
-    } catch {
-      throw new UnauthorizedException();
+      request.user = payload; // Maintenant, TypeScript reconnaît cette propriété
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token: ' + error.message);
     }
+
     return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const authorizationHeader = (request.headers as any).authorization;
+    const authorizationHeader = request.headers.authorization;
     const [type, token] = authorizationHeader?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }

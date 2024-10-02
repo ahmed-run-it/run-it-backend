@@ -57,7 +57,7 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-
+npm run migration:generate
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
