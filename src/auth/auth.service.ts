@@ -5,33 +5,24 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../users/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-
-interface User {
-  username: string;
-  password: string;
-  role?: string;
-  isActive?: boolean;
-}
+import { User } from '../entities';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private readonly usersService: UsersService,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
   // Méthode pour signer un utilisateur
-  async signIn(
-    username: string,
-    pass: string,
-  ): Promise<{ access_token: string }> {
+  async signIn(email: string, pass: string): Promise<{ access_token: string }> {
     // Validation de base sur les entrées
-    if (!username || !pass) {
+    if (!email || !pass) {
       this.logger.warn(
         'Tentative de connexion sans nom d’utilisateur ou mot de passe',
       );
@@ -39,11 +30,11 @@ export class AuthService {
     }
 
     // Recherche de l'utilisateur
-    const user: User | undefined = await this.usersService.findOne(username);
+    const user: User | undefined = await this.userService.findByEmail(email);
 
     if (!user) {
       this.logger.warn(
-        `Échec de la connexion : utilisateur ${username} non trouvé`,
+        `Échec de la connexion : utilisateur ${email} non trouvé`,
       );
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -51,7 +42,7 @@ export class AuthService {
     // Vérification si l'utilisateur est actif
     if (!user.isActive) {
       this.logger.warn(
-        `Tentative de connexion avec un compte inactif : ${username}`,
+        `Tentative de connexion avec un compte inactif : ${email}`,
       );
       throw new ForbiddenException('User account is not active');
     }
@@ -61,7 +52,7 @@ export class AuthService {
 
     if (!isMatch) {
       this.logger.warn(
-        `Échec de la connexion : mot de passe incorrect pour ${username}`,
+        `Échec de la connexion : mot de passe incorrect pour ${email}`,
       );
       throw new UnauthorizedException('Password does not match');
     }
@@ -69,13 +60,13 @@ export class AuthService {
     // Génération du token d'accès
     const accessToken = await this.generateToken(user);
 
-    this.logger.log(`Connexion réussie pour l'utilisateur ${username}`);
+    this.logger.log(`Connexion réussie pour l'utilisateur ${email}`);
     return { access_token: accessToken };
   }
 
   // Méthode dédiée pour générer le JWT
   private async generateToken(user: User): Promise<string> {
-    const payload = { username: user.username, role: user.role }; // Ajout de l'ID utilisateur
+    const payload = { username: user.firstName, role: user.role }; // Ajout de l'ID utilisateur
     return this.jwtService.signAsync(payload, { expiresIn: '1h' }); // Ajout d'une expiration de 1h
   }
 }
