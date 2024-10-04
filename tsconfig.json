@@ -25,5 +25,5 @@
     "test/**/*",
     "src/config",
     "src/shared/types/**/*.d.ts"
-  ]
+, "src/entities/product_size.entity.ts"  ]
 }
