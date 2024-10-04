@@ -6,7 +6,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 @Injectable()
 export class DataSourceService implements OnModuleInit {
   constructor(
-    private configService?: ConfigService,
+    private readonly configService?: ConfigService,
     private datasource?: DataSource,
   ) {}
 
